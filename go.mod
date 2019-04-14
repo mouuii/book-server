@@ -3,6 +3,7 @@ module github.com/wowiwj/book-server
 go 1.12
 
 require (
+	github.com/codegangsta/inject v0.0.0-20150114235600-33e0aa1cb7c0
 	github.com/denisenkom/go-mssqldb v0.0.0-20190412130859-3b1d194e553a // indirect
 	github.com/erikstmartin/go-testdb v0.0.0-20160219214506-8d10e4a1bae5 // indirect
 	github.com/go-sql-driver/mysql v1.4.1 // indirect

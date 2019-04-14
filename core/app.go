@@ -2,6 +2,7 @@ package core
 
 import (
 	"flag"
+	"github.com/codegangsta/inject"
 	"log"
 	"net/http"
 	"reflect"
@@ -12,6 +13,7 @@ var (
 )
 
 type App struct {
+	inject.Injector
 	Router *Router
 	DB     *Database
 	Env    string
@@ -43,11 +45,17 @@ func (app *App) Run(addr string) {
 	log.Fatal(http.ListenAndServe(addr, app.Router))
 }
 
-type Handle interface {
-}
+
+type Handle interface{}
 
 func ValidateHandle(handle Handle) {
 	if reflect.TypeOf(handle).Kind() != reflect.Func {
 		panic("handler must be a callable func")
+	}
+}
+
+func WrapHandle(handle Handle) http.HandlerFunc {
+	return func(writer http.ResponseWriter, request *http.Request) {
+
 	}
 }
