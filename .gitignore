@@ -1,0 +1,4 @@
+.stack.yml
+/vendor
+.conf.yml
+.idea/
