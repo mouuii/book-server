@@ -1,7 +1,6 @@
 package core
 
 import (
-	"fmt"
 	"github.com/codegangsta/inject"
 	"github.com/gorilla/mux"
 	"net/http"
@@ -32,8 +31,13 @@ func (this *Router) Init() {
 	this.router = router
 }
 
-func (this *Router) createContext(writer http.ResponseWriter, request *http.Request) *context {
-	c := &context{inject.New()}
+func (this *Router) createContext(writer http.ResponseWriter, request *http.Request, handle Handle) *context {
+	c := &context{
+		Injector: inject.New(),
+		Writer:   writer,
+		Request:  request,
+		Handle: handle,
+	}
 	c.SetParent(this)
 	c.MapTo(c, (*Context)(nil))
 	c.MapTo(writer, (*http.ResponseWriter)(nil))
@@ -49,18 +53,8 @@ func (this *Router) validateHandle(handle Handle) {
 
 func (this *Router) wrapHandle(handle Handle) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
-		c := this.createContext(writer, request)
-		vals, err := c.Invoke(handle)
-		if err != nil {
-			panic(err)
-		}
-
-		fmt.Println(vals)
-		ev := this.Get(reflect.TypeOf(ReturnHandler(nil)))
-		returnHandle := ev.Interface().(ReturnHandler)
-		if len(vals) > 0 {
-			returnHandle(writer, request, vals)
-		}
+		c := this.createContext(writer, request, handle)
+		c.Next();
 	}
 }
 

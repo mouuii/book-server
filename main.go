@@ -12,7 +12,6 @@ func main() {
 	app := core.Initialize()
 	router := app.Router
 
-
 	router.GET("/", func() string {
 		return "hello"
 	})
@@ -31,7 +30,7 @@ func main() {
 	})
 
 	router.GET("/app", func(app *core.App) string {
-		return fmt.Sprintf("%v",app.Env)
+		return fmt.Sprintf("%v", app.Env)
 	})
 
 	app.Run(":8082")
