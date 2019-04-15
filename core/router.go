@@ -5,6 +5,7 @@ import (
 	"github.com/codegangsta/inject"
 	"github.com/gorilla/mux"
 	"net/http"
+	"reflect"
 )
 
 type Router struct {
@@ -12,36 +13,15 @@ type Router struct {
 	router *mux.Router
 }
 
-func (this *Router) Handle(method string,path string,handle Handle) {
-	ValidateHandle(handle)
+type Handle interface{}
 
-
-	this.router.HandleFunc(path,func(writer http.ResponseWriter, request *http.Request) {
-		c := this.createContext(writer,request)
-		vals,err := c.Invoke(handle)
-		if err != nil {
-			panic(err)
-		}
-
-		fmt.Println(vals)
-
-		returnHandle := defaultReturnHandle()
-		if len(vals) > 0 {
-			returnHandle(writer,request,vals)
-		}
-
-	}).Methods(method)
+func (this *Router) Handle(method string, path string, handle Handle) {
+	this.validateHandle(handle)
+	this.router.HandleFunc(path, this.wrapHandle(handle)).Methods(method)
 }
 
-
-func (this *Router) GET1(path string, f Handle) {
-	this.Handle("GET",path,f)
-}
-
-func (this *Router) GET(path string, f func(http.ResponseWriter,
-	*http.Request)) *Router {
-	this.router.Methods("GET").HandlerFunc(f)
-	return this
+func (this *Router) GET(path string, handle Handle) {
+	this.Handle("GET", path, handle)
 }
 
 func (this *Router) Init() {
@@ -56,9 +36,32 @@ func (this *Router) createContext(writer http.ResponseWriter, request *http.Requ
 	c := &context{inject.New()}
 	c.SetParent(this)
 	c.MapTo(c, (*Context)(nil))
-	c.MapTo(writer,(*http.ResponseWriter)(nil))
+	c.MapTo(writer, (*http.ResponseWriter)(nil))
 	c.Map(request)
 	return c
+}
+
+func (this *Router) validateHandle(handle Handle) {
+	if reflect.TypeOf(handle).Kind() != reflect.Func {
+		panic("handler must be a callable func")
+	}
+}
+
+func (this *Router) wrapHandle(handle Handle) http.HandlerFunc {
+	return func(writer http.ResponseWriter, request *http.Request) {
+		c := this.createContext(writer, request)
+		vals, err := c.Invoke(handle)
+		if err != nil {
+			panic(err)
+		}
+
+		fmt.Println(vals)
+
+		returnHandle := defaultReturnHandle()
+		if len(vals) > 0 {
+			returnHandle(writer, request, vals)
+		}
+	}
 }
 
 func (this *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {

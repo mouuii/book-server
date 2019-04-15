@@ -5,7 +5,6 @@ import (
 	"github.com/codegangsta/inject"
 	"log"
 	"net/http"
-	"reflect"
 )
 
 var (
@@ -42,20 +41,12 @@ func Initialize() App {
 }
 
 func (app *App) Run(addr string) {
-	log.Fatal(http.ListenAndServe(addr, app.Router))
+	log.Fatal(http.ListenAndServe(addr, app))
+}
+
+func (app *App) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	app.Router.ServeHTTP(w, req)
 }
 
 
-type Handle interface{}
 
-func ValidateHandle(handle Handle) {
-	if reflect.TypeOf(handle).Kind() != reflect.Func {
-		panic("handler must be a callable func")
-	}
-}
-
-func WrapHandle(handle Handle) http.HandlerFunc {
-	return func(writer http.ResponseWriter, request *http.Request) {
-
-	}
-}
