@@ -56,8 +56,8 @@ func (this *Router) wrapHandle(handle Handle) http.HandlerFunc {
 		}
 
 		fmt.Println(vals)
-
-		returnHandle := defaultReturnHandle()
+		ev := this.Get(reflect.TypeOf(ReturnHandler(nil)))
+		returnHandle := ev.Interface().(ReturnHandler)
 		if len(vals) > 0 {
 			returnHandle(writer, request, vals)
 		}
@@ -65,5 +65,6 @@ func (this *Router) wrapHandle(handle Handle) http.HandlerFunc {
 }
 
 func (this *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+
 	this.router.ServeHTTP(w, req)
 }

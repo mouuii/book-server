@@ -30,6 +30,10 @@ func main() {
 		return r.Host
 	})
 
+	router.GET("/app", func(app *core.App) string {
+		return fmt.Sprintf("%v",app.Env)
+	})
+
 	app.Run(":8082")
 
 }

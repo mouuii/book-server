@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"github.com/codegangsta/inject"
 	"github.com/jinzhu/gorm"
 	"log"
 
@@ -11,6 +12,7 @@ import (
 )
 
 type Database struct {
+	inject.Injector
 	DB *gorm.DB
 }
 

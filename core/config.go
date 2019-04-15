@@ -1,8 +1,12 @@
 package core
 
-import "github.com/spf13/viper"
+import (
+	"github.com/codegangsta/inject"
+	"github.com/spf13/viper"
+)
 
 type Config struct {
+	inject.Injector
 	File string
 	Path string
 	Name string
@@ -10,7 +14,6 @@ type Config struct {
 }
 
 func (this *Config) Init() error {
-
 	if this.Type == "" {
 		this.Type = "yaml"
 	}
