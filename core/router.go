@@ -31,12 +31,27 @@ func (this *Router) Init() {
 	this.router = router
 }
 
+func (this *Router) Register(handle Handle) {
+	this.validateHandle(handle)
+	_, err := this.Invoke(handle)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func (this *Router) Group(prefix string, handle func(*Router)) {
+	muxRoute := this.router.PathPrefix(prefix).Subrouter()
+	router := &Router{Injector: inject.New(), router: muxRoute}
+	router.SetParent(this)
+	handle(router)
+}
+
 func (this *Router) createContext(writer http.ResponseWriter, request *http.Request, handle Handle) *context {
 	c := &context{
 		Injector: inject.New(),
 		Writer:   writer,
 		Request:  request,
-		Handle: handle,
+		Handle:   handle,
 	}
 	c.SetParent(this)
 	c.MapTo(c, (*Context)(nil))
