@@ -1,15 +1,18 @@
 package main
 
 import (
-	"github.com/wowiwj/book-server/core"
-	"github.com/wowiwj/book-server/routes"
+	"github.com/labstack/echo"
+	"github.com/spf13/viper"
+	"github.com/wowiwj/book-server/conf"
 )
 
 func main() {
 
-	app := core.Initialize()
-
-	app.Router.Register(routes.Api)
-
-	app.Run(":8082")
+	app := echo.New()
+	if err := conf.Init(app); err != nil {
+		app.Logger.Fatal(err)
+		return
+	}
+	port := viper.GetString("port")
+	app.Logger.Fatal(app.Start(":" + port))
 }

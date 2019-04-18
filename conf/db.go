@@ -1,23 +1,17 @@
-package core
+package conf
 
 import (
 	"fmt"
-	"github.com/codegangsta/inject"
 	"github.com/jinzhu/gorm"
-	"log"
-
-	//_ "github.com/jinzhu/gorm/dialects/mysql"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
-	// import _ "github.com/jinzhu/gorm/dialects/sqlite"
+	"github.com/labstack/gommon/log"
 )
 
 type Database struct {
-	inject.Injector
 	DB *gorm.DB
 }
 
-func (this *Database) Init() {
-
+func (this *Database) Init() error {
 	config := GetDbConfig()
 	databaseUrl := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
 		config.Host,
@@ -26,10 +20,12 @@ func (this *Database) Init() {
 		config.Name,
 		config.Password,
 	)
-	log.Println(databaseUrl)
+
+	log.Debug(databaseUrl)
 	db, err := gorm.Open(config.Dialect, databaseUrl)
 	if err != nil {
-		log.Fatalln(err)
+		return err
 	}
 	this.DB = db
+	return nil
 }

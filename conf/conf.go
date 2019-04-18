@@ -1,19 +1,17 @@
-package core
+package conf
 
 import (
-	"github.com/codegangsta/inject"
 	"github.com/spf13/viper"
 )
 
 type Config struct {
-	inject.Injector
 	File string
 	Path string
 	Name string
 	Type string
 }
 
-func (this *Config) Init() error {
+func (this *Config) InitConfig() error {
 	if this.Type == "" {
 		this.Type = "yaml"
 	}
@@ -42,19 +40,13 @@ type DbConfig struct {
 }
 
 func GetDbConfig() DbConfig {
-	dialect := viper.GetString("database.dialect")
-	name := viper.GetString("database.database_name")
-	username := viper.GetString("database.username")
-	password := viper.GetString("database.password")
-	host := viper.GetString("database.host")
-	port := viper.GetString("database.port")
-
+	db := viper.GetStringMapString("database")
 	return DbConfig{
-		dialect,
-		name,
-		username,
-		password,
-		host,
-		port,
+		db["dialect"],
+		db["name"],
+		db["username"],
+		db["password"],
+		db["host"],
+		db["port"],
 	}
 }
