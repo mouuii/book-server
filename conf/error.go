@@ -65,7 +65,8 @@ func (p *ErrorParser) ParseCustomer() *ErrorResponse {
 	response := &ErrorResponse{}
 	if err, ok := p.err.(validator.ValidationErrors); ok {
 		response.Code = 422
-		response.Message = err.Error()
+		v := p.e.Validator.(*AppValidator)
+		response.Message = v.TransError(err)
 		return response
 	}
 	return nil
