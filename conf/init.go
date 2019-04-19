@@ -19,6 +19,7 @@ func Init(app *echo.Echo) error {
 	}
 
 	router.Init(app)
+	Migrate(db)
 
 	return nil
 }
