@@ -19,7 +19,11 @@ func Init(app *echo.Echo) error {
 	}
 
 	router.Init(app)
-	Migrate(db)
+
+	// register validate
+	addValidator(app)
+	registerError(app)
+	migrate(db)
 
 	return nil
 }
