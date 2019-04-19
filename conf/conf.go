@@ -43,7 +43,7 @@ func GetDbConfig() DbConfig {
 	db := viper.GetStringMapString("database")
 	return DbConfig{
 		db["dialect"],
-		db["name"],
+		db["database_name"],
 		db["username"],
 		db["password"],
 		db["host"],

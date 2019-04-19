@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
-	"github.com/labstack/gommon/log"
 )
 
 type Database struct {
@@ -20,8 +19,6 @@ func (this *Database) Init() error {
 		config.Name,
 		config.Password,
 	)
-
-	log.Debug(databaseUrl)
 	db, err := gorm.Open(config.Dialect, databaseUrl)
 	if err != nil {
 		return err
