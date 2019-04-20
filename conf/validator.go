@@ -6,6 +6,7 @@ import (
 	"github.com/labstack/echo"
 	"gopkg.in/go-playground/validator.v9"
 	zh_translations "gopkg.in/go-playground/validator.v9/translations/zh"
+	"reflect"
 	"strings"
 )
 
@@ -38,13 +39,20 @@ func (v *AppValidator) convertField(translate validator.ValidationErrorsTranslat
 	for k, v := range translate {
 		from := strings.Split(k, ".")
 		newKey := from[len(from)-1]
-		field := strings.ToLower(newKey)
-		newValue := strings.Replace(v, newKey, field + " ", 1)
-		trans[field] = newValue
+		trans[newKey] = v
 	}
 	return trans
 }
 
 func addValidator(app *echo.Echo) {
-	app.Validator = &AppValidator{validator: validator.New()}
+	v := validator.New()
+	app.Validator = &AppValidator{validator: v}
+	v.RegisterTagNameFunc(func(fld reflect.StructField) string {
+		name := strings.SplitN(fld.Tag.Get("json"), ",", 2)[0]
+		if name == "-" {
+			return ""
+		}
+		return name
+	})
+
 }

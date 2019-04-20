@@ -10,7 +10,7 @@ func Init(router *echo.Echo)  {
 	auth := router.Group("/auth")
 	{
 		auth.GET("/login", handle.UserLogin)
-		auth.GET("/register",handle.UserRegister)
+		auth.POST("/register",handle.UserRegister)
 	}
 
 

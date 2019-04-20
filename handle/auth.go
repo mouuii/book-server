@@ -12,8 +12,6 @@ type RegisterForm struct {
 }
 
 func UserLogin(c echo.Context) error {
-
-
 	return c.String(http.StatusOK, "login")
 }
 
