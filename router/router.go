@@ -5,6 +5,8 @@ import (
 	"github.com/wowiwj/book-server/handle"
 )
 
+
+
 func Init(router *echo.Echo)  {
 
 	auth := router.Group("/auth")
