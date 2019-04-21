@@ -3,6 +3,7 @@ package conf
 import (
 	"fmt"
 	"github.com/labstack/echo"
+	"github.com/wowiwj/book-server/handle/context"
 	"gopkg.in/go-playground/validator.v9"
 	"net/http"
 )
@@ -11,15 +12,10 @@ func registerError(app *echo.Echo) {
 	app.HTTPErrorHandler = httpErrorHandler
 }
 
-type ErrorResponse struct {
-	Code    int         `json:"code"`
-	Message interface{} `json:"message"`
-}
-
 type ErrorParser struct {
 	e        *echo.Echo
 	context  echo.Context
-	response *ErrorResponse
+	response *context.ErrorResponse
 	err      error
 }
 
@@ -61,8 +57,8 @@ func (p *ErrorParser) Process() *ErrorParser {
 	return p
 }
 
-func (p *ErrorParser) ParseCustomer() *ErrorResponse {
-	response := &ErrorResponse{}
+func (p *ErrorParser) ParseCustomer() *context.ErrorResponse {
+	response := &context.ErrorResponse{}
 	if err, ok := p.err.(validator.ValidationErrors); ok {
 		response.Code = 422
 		v := p.e.Validator.(*AppValidator)
@@ -72,8 +68,8 @@ func (p *ErrorParser) ParseCustomer() *ErrorResponse {
 	return nil
 }
 
-func (p *ErrorParser) parseDefault() *ErrorResponse {
-	response := &ErrorResponse{}
+func (p *ErrorParser) parseDefault() *context.ErrorResponse {
+	response := &context.ErrorResponse{}
 	if he, ok := p.err.(*echo.HTTPError); ok {
 		response.Code = he.Code
 		response.Message = he.Message

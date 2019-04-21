@@ -2,19 +2,18 @@ package conf
 
 import (
 	"github.com/labstack/echo"
-	context2 "github.com/wowiwj/book-server/handle/context"
+	"github.com/wowiwj/book-server/app"
+	"github.com/wowiwj/book-server/handle/context"
 	"github.com/wowiwj/book-server/router"
 )
 
 type Ctx struct {
 	conf *Config
-	DB   *Database
+	DB   *app.Database
 	App  *echo.Echo
 }
 
-
-
-func Init(app *echo.Echo) error {
+func Init(e *echo.Echo) error {
 	conf := &Config{
 		File: "conf.yml",
 	}
@@ -22,20 +21,21 @@ func Init(app *echo.Echo) error {
 		return err
 	}
 
-	db := &Database{}
-	if err := db.Init(); err != nil {
+	if err := InitDB(); err != nil {
 		return err
 	}
 
-	router.Init(app)
+	db := app.GetDB()
+
+	router.Init(e)
 
 	// register validate
-	addValidator(app)
-	registerError(app)
-	
-	app.Use(func(handlerFunc echo.HandlerFunc) echo.HandlerFunc {
-		return func(context echo.Context) error {
-			cc := context2.AppContext{context,db.DB}
+	addValidator(e)
+	registerError(e)
+
+	e.Use(func(handlerFunc echo.HandlerFunc) echo.HandlerFunc {
+		return func(ctx echo.Context) error {
+			cc := context.AppContext{ctx, db}
 			return handlerFunc(cc)
 		}
 	})

@@ -1,4 +1,6 @@
 env: development
+port: 9080
+secret: "123456"
 database:
   dialect: postgres
   database_name: postgres
