@@ -39,3 +39,8 @@ func (u *User) BeforeSave() (err error) {
 	u.Password = secret
 	return nil
 }
+
+func (u *User) GetUserByEmail(email string) error {
+	db := app.GetDB()
+	return db.Where("email = ?", email).First(u).Error
+}

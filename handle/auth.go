@@ -1,10 +1,12 @@
 package handle
 
 import (
+	"github.com/labstack/echo"
 	"github.com/wowiwj/book-server/app"
 	"github.com/wowiwj/book-server/handle/form"
 	"github.com/wowiwj/book-server/handle/service"
 	"github.com/wowiwj/book-server/model"
+	"github.com/wowiwj/book-server/util"
 	"net/http"
 )
 
@@ -16,11 +18,32 @@ type AuthResponse struct {
 }
 
 func UserLogin(ctx app.AppContext) error {
+	var (
+		err   error
+		token string
+	)
+
 	loginForm := new(form.LoginForm)
-	if err := ctx.Validate(loginForm);err != nil {
+	if err = ctx.Validate(loginForm); err != nil {
 		return err
 	}
-	return ctx.Success(http.StatusOK,"success")
+	var user model.User
+	if err = user.GetUserByEmail(loginForm.Email); err != nil {
+		return err
+	}
+	if !util.CheckPasswordHash(loginForm.Password, user.Password) {
+		return echo.ErrUnauthorized
+	}
+
+	if token, err = service.CreateToken(user.ID); err != nil {
+		return err
+	}
+	return ctx.Success(http.StatusOK, AuthResponse{
+		Id:       user.ID,
+		Username: user.Name,
+		Email:    user.Email,
+		Token:    token,
+	})
 }
 
 func UserRegister(ctx app.AppContext) error {
