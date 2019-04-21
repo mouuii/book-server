@@ -1,6 +1,9 @@
 package model
 
-import "github.com/wowiwj/book-server/app"
+import (
+	"github.com/wowiwj/book-server/app"
+	"github.com/wowiwj/book-server/util"
+)
 
 type User struct {
 	BaseModel
@@ -24,4 +27,15 @@ func (u *User) Create() (id uint, err error) {
 func (u *User) IsExist() bool {
 	db := app.GetDB()
 	return !db.First(&u, "email = ?", u.Email).RecordNotFound()
+}
+
+func (u *User) BeforeSave() (err error) {
+
+	secret, err := util.HashPassword(u.Password)
+	if err != nil {
+		return err
+	}
+	// 加密
+	u.Password = secret
+	return nil
 }

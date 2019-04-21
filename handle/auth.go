@@ -1,7 +1,6 @@
 package handle
 
 import (
-	"github.com/labstack/echo"
 	"github.com/wowiwj/book-server/app"
 	"github.com/wowiwj/book-server/handle/form"
 	"github.com/wowiwj/book-server/handle/service"
@@ -16,8 +15,12 @@ type AuthResponse struct {
 	Token    string `json:"token"`
 }
 
-func UserLogin(c echo.Context) error {
-	return c.String(http.StatusOK, "login")
+func UserLogin(ctx app.AppContext) error {
+	loginForm := new(form.LoginForm)
+	if err := ctx.Validate(loginForm);err != nil {
+		return err
+	}
+	return ctx.Success(http.StatusOK,"success")
 }
 
 func UserRegister(ctx app.AppContext) error {
