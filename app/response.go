@@ -1,4 +1,4 @@
-package context
+package app
 
 type ErrorResponse struct {
 	Code    int         `json:"code"`

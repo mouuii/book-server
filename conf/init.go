@@ -3,7 +3,6 @@ package conf
 import (
 	"github.com/labstack/echo"
 	"github.com/wowiwj/book-server/app"
-	"github.com/wowiwj/book-server/handle/context"
 	"github.com/wowiwj/book-server/router"
 )
 
@@ -30,12 +29,12 @@ func Init(e *echo.Echo) error {
 	router.Init(e)
 
 	// register validate
-	addValidator(e)
+	app.AddValidator(e)
 	registerError(e)
 
 	e.Use(func(handlerFunc echo.HandlerFunc) echo.HandlerFunc {
 		return func(ctx echo.Context) error {
-			cc := context.AppContext{ctx, db}
+			cc := app.AppContext{ctx, db}
 			return handlerFunc(cc)
 		}
 	})

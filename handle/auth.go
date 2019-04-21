@@ -2,19 +2,15 @@ package handle
 
 import (
 	"github.com/labstack/echo"
-	"github.com/wowiwj/book-server/handle/context"
+	"github.com/wowiwj/book-server/app"
+	"github.com/wowiwj/book-server/handle/form"
 	"github.com/wowiwj/book-server/handle/service"
 	"github.com/wowiwj/book-server/model"
 	"net/http"
 )
 
-type RegisterForm struct {
-	Username string `json:"username" validate:"required,min=5,max=64"`
-	Email    string `json:"email" validate:"required,email"`
-	Password string `json:"password" validate:"required,min=6"`
-}
-
 type AuthResponse struct {
+	Id       uint   `json:"id"`
 	Username string `json:"username"`
 	Email    string `json:"email"`
 	Token    string `json:"token"`
@@ -24,38 +20,27 @@ func UserLogin(c echo.Context) error {
 	return c.String(http.StatusOK, "login")
 }
 
-func UserRegister(c echo.Context) error {
+func UserRegister(ctx app.AppContext) error {
+	var (
+		user  *model.User
+		err   error
+		token string
+	)
 
-	registerForm := new(RegisterForm)
-	if err := c.Bind(registerForm); err != nil {
+	registerForm := new(form.RegisterForm)
+	if err = ctx.Validate(registerForm); err != nil {
 		return err
 	}
-	if err := c.Validate(registerForm); err != nil {
+
+	if user, err = service.CreateUser(*registerForm); err != nil {
 		return err
 	}
 
-	ctx := c.(context.AppContext)
-	db := ctx.DB
-
-	var user model.User
-
-	if ! db.First(&user, "email = ?", registerForm.Email).RecordNotFound() {
-		return ctx.Failed(http.StatusBadRequest, "用户已存在")
-	}
-
-	user.Email = registerForm.Email
-	user.Password = registerForm.Password
-	user.Name = registerForm.Username
-
-	if _, err := user.Create(); err != nil {
-		return ctx.String(http.StatusBadRequest, "注册失败")
-	}
-
-	token, err := service.CreateToken(user.ID)
-	if err != nil {
+	if token, err = service.CreateToken(user.ID); err != nil {
 		return err
 	}
 	return ctx.Success(http.StatusOK, AuthResponse{
+		Id:       user.ID,
 		Username: user.Name,
 		Email:    user.Email,
 		Token:    token,

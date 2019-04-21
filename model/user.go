@@ -20,3 +20,8 @@ func (u *User) Create() (id uint, err error) {
 	}
 	return u.ID, nil
 }
+
+func (u *User) IsExist() bool {
+	db := app.GetDB()
+	return !db.First(&u, "email = ?", u.Email).RecordNotFound()
+}

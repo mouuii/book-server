@@ -1,4 +1,4 @@
-package context
+package app
 
 import (
 	"github.com/jinzhu/gorm"
@@ -24,4 +24,14 @@ func (ctx *AppContext) Failed(status int, i interface{}) error {
 		Message: i,
 	}
 	return ctx.JSON(status, response)
+}
+
+func (ctx AppContext) Validate(i interface{}) error {
+	if err := ctx.Bind(i); err != nil {
+		return err
+	}
+	if err := ctx.Context.Validate(i); err != nil {
+		return err
+	}
+	return nil
 }

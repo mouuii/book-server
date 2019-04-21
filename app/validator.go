@@ -1,4 +1,4 @@
-package conf
+package app
 
 import (
 	"github.com/go-playground/locales/zh"
@@ -12,6 +12,19 @@ import (
 
 type AppValidator struct {
 	validator *validator.Validate
+}
+
+func AddValidator(app *echo.Echo) {
+	v := validator.New()
+	app.Validator = &AppValidator{validator: v}
+	v.RegisterTagNameFunc(func(fld reflect.StructField) string {
+		name := strings.SplitN(fld.Tag.Get("json"), ",", 2)[0]
+		if name == "-" {
+			return ""
+		}
+		return name
+	})
+
 }
 
 func (v *AppValidator) Validate(i interface{}) error {
@@ -42,17 +55,4 @@ func (v *AppValidator) convertField(translate validator.ValidationErrorsTranslat
 		trans[newKey] = v
 	}
 	return trans
-}
-
-func addValidator(app *echo.Echo) {
-	v := validator.New()
-	app.Validator = &AppValidator{validator: v}
-	v.RegisterTagNameFunc(func(fld reflect.StructField) string {
-		name := strings.SplitN(fld.Tag.Get("json"), ",", 2)[0]
-		if name == "-" {
-			return ""
-		}
-		return name
-	})
-
 }
